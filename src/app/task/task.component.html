@@ -1,0 +1,95 @@
+<div class="row mt-4 ml-5 mr-5">
+  <div>
+    <p-button label="Add New" (onClick)="openModal()" icon="pi pi-plus-circle" iconPos="right"></p-button>
+
+  </div>
+</div>
+<div class="ml-5 mr-5 mt-5" >
+  <div class="table-responsive border-1">
+    <table class="table table-striped">
+      <thead>
+      <tr>
+
+        <th>ID</th>
+        <th>First Name</th>
+        <th>Last Name</th>
+        <th>Email ID</th>
+        <th>Image</th>
+        <th>Action</th>
+
+
+      </tr>
+      </thead>
+      <tbody>
+      <tr *ngFor="let eachData of allData|
+    paginate : {
+            itemsPerPage: tableSize,
+            currentPage: currentPage,
+            totalItems: totalCount
+          };
+    let i = index">
+
+        <td>{{i+1}}</td>
+        <td>{{eachData['first_name']}}</td>
+        <td>{{eachData['last_name']}}</td>
+        <td>{{eachData['email']}}</td>
+        <td>
+          <img [src]="eachData['avatar']" >
+        </td>
+        <td class="p-4" >
+          <button class="btn btn-sm btn-outline-primary" (click)="openEditPopUp(eachData)" > <i class="fa fa-pencil text-primary" ></i> Edit</button>
+          <button class="btn btn-sm btn-danger ml-4" (click)="daleteData(eachData?.id)" > <i class="fa fa-trash text-white" ></i> Delete</button>
+        </td>
+
+      </tr>
+      </tbody>
+    </table>
+  </div>
+
+</div>
+<hr>
+      <div class="row mx-2">
+        <div class="d-flex justify-content-center">
+          <pagination-controls
+            previousLabel="Prev"
+            nextLabel="Next"
+            (pageChange)="onTableDataChange($event)">
+          </pagination-controls>
+        </div>
+      </div>
+
+
+      <p-dialog header="Form" [style]="{'width':'40%'}" [modal]="true" [(visible)]="showFormDialog" (onHide)="hidePopUp()">
+        <div class="row">
+          <form [formGroup]="dataForm">
+            <div class="row">
+              <div class="col-md-6 mb-3 p-field">
+                <span class="">
+                  <label>Name</label>
+                  <input formControlName="name" pInputText class="w-100" type="text" placeholder="Name" required >
+                  <small *ngIf="(dataForm.get('name').touched && dataForm.get('name').errors) && dataForm.value?.name==''" class="p-error">Please enter Value</small>
+                  <small *ngIf="nameError" class="p-error">Please enter Value</small>
+                </span>
+
+              </div>
+              <div class="col-md-6 mb-3 p-field">
+                <span class="">
+                  <label>Job</label>
+                  <input formControlName="job" pInputText class="w-100" type="text" placeholder="Job" required >
+                  <small *ngIf="(dataForm.get('job').touched && dataForm.get('job').errors) && dataForm.value?.job==''" class="p-error">Please enter Value</small>
+                  <small *ngIf="jobError" class="p-error">Please enter Value</small>
+                </span>
+
+              </div>
+            </div>
+            <div class="row my-2">
+              <div class="col-md-12">
+                <button (click)="addData()" pRipple class="btn btn-primary float-end ml-4">{{currentselectedData?'Update':'Add'}} Data</button>
+
+                <button pRipple (click)="dataForm.reset()" class="btn btn-danger float-end ">Reset</button>
+
+              </div>
+            </div>
+          </form>
+        </div>
+      </p-dialog>
