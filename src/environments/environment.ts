@@ -4,7 +4,7 @@
 
 export const environment = {
   production: false,
-  apiEndpoint: 'https://reqres.in/api'
+  apiEndpoint: 'https://dummyjson.com'
 };
 
 /*

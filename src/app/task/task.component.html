@@ -1,27 +1,29 @@
 <div class="row mt-4 ml-5 mr-5">
+
   <div>
     <p-button label="Add New" (onClick)="openModal()" icon="pi pi-plus-circle" iconPos="right"></p-button>
 
   </div>
 </div>
-<div class="ml-5 mr-5 mt-5" >
+<div class="text-center" *ngIf="showLoader">
+  <i class="pi pi-spin pi-spinner" style="font-size: 2rem"></i>
+</div>
+<div class="ml-5 mr-5 mt-5"  *ngIf="taskList.length > 0" >
   <div class="table-responsive border-1">
     <table class="table table-striped">
       <thead>
       <tr>
 
-        <th>ID</th>
-        <th>First Name</th>
-        <th>Last Name</th>
-        <th>Email ID</th>
-        <th>Image</th>
-        <th>Action</th>
+        <th class="text-center" >#</th>
+        <th class="text-center" >Description</th>
+        <th class="text-center" >Status</th>
+        <th class="text-center" >Action</th>
 
 
       </tr>
       </thead>
       <tbody>
-      <tr *ngFor="let eachData of allData|
+      <tr *ngFor="let eachData of taskList|
     paginate : {
             itemsPerPage: tableSize,
             currentPage: currentPage,
@@ -29,16 +31,15 @@
           };
     let i = index">
 
-        <td>{{i+1}}</td>
-        <td>{{eachData['first_name']}}</td>
-        <td>{{eachData['last_name']}}</td>
-        <td>{{eachData['email']}}</td>
-        <td>
-          <img [src]="eachData['avatar']" >
+        <td class="text-center" >{{i+1}}</td>
+        <td class="text-center" >{{eachData['todo']}}</td>
+        <td class="text-center" >
+          <span [ngStyle]="{'color':eachData.completed ? 'green' : 'red' }" >{{eachData['completed'] ? 'Completed' : 'Incomplete'}}</span>
         </td>
-        <td class="p-4" >
-          <button class="btn btn-sm btn-outline-primary" (click)="openEditPopUp(eachData)" > <i class="fa fa-pencil text-primary" ></i> Edit</button>
-          <button class="btn btn-sm btn-danger ml-4" (click)="daleteData(eachData?.id)" > <i class="fa fa-trash text-white" ></i> Delete</button>
+        <td class="text-center" >
+          <button class="btn btn-sm btn-success" (click)="markAsComplete(eachData)" > <i class="fa fa-check-circle text-white" ></i> Mark As Complete</button>
+          <button class="btn btn-sm btn-outline-primary ml-2" (click)="openEditPopUp(eachData)" > <i class="fa fa-pencil text-primary" ></i> Edit</button>
+          <button class="btn btn-sm btn-danger ml-2" (click)="daleteData(eachData?.id)" > <i class="fa fa-trash text-white" ></i> Delete</button>
         </td>
 
       </tr>
@@ -48,7 +49,7 @@
 
 </div>
 <hr>
-      <div class="row mx-2">
+      <div class="row mx-2" *ngIf="taskList.length > 0">
         <div class="d-flex justify-content-center">
           <pagination-controls
             previousLabel="Prev"
@@ -59,25 +60,17 @@
       </div>
 
 
-      <p-dialog header="Form" [style]="{'width':'40%'}" [modal]="true" [(visible)]="showFormDialog" (onHide)="hidePopUp()">
+      <p-dialog [header]="headerName" [style]="{'width':'40%'}" [modal]="true" [(visible)]="showFormDialog" (onHide)="hidePopUp()">
         <div class="row">
           <form [formGroup]="dataForm">
             <div class="row">
               <div class="col-md-6 mb-3 p-field">
                 <span class="">
-                  <label>Name</label>
-                  <input formControlName="name" pInputText class="w-100" type="text" placeholder="Name" required >
-                  <small *ngIf="(dataForm.get('name').touched && dataForm.get('name').errors) && dataForm.value?.name==''" class="p-error">Please enter Value</small>
-                  <small *ngIf="nameError" class="p-error">Please enter Value</small>
-                </span>
+                  <label>Description</label>
+                  <textarea rows="5" cols="30" pInputText formControlName="todo" class="w-100" placeholder="Task Description" required></textarea><br>
 
-              </div>
-              <div class="col-md-6 mb-3 p-field">
-                <span class="">
-                  <label>Job</label>
-                  <input formControlName="job" pInputText class="w-100" type="text" placeholder="Job" required >
-                  <small *ngIf="(dataForm.get('job').touched && dataForm.get('job').errors) && dataForm.value?.job==''" class="p-error">Please enter Value</small>
-                  <small *ngIf="jobError" class="p-error">Please enter Value</small>
+                  <small *ngIf="(dataForm.get('todo').touched && dataForm.get('todo').errors) && dataForm.value?.todo==''" class="p-error">Please enter Value</small>
+                  <small *ngIf="nameError" class="p-error">Please enter Value</small>
                 </span>
 
               </div>

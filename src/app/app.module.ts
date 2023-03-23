@@ -7,6 +7,7 @@ import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { HttpClientModule} from "@angular/common/http";
 import {DialogModule} from 'primeng/dialog';
+import { InputTextareaModule } from 'primeng/inputtextarea';
 
 @NgModule({
   declarations: [
@@ -18,7 +19,8 @@ import {DialogModule} from 'primeng/dialog';
     CommonModule,
     HttpClientModule,
     BrowserAnimationsModule,
-    DialogModule
+    DialogModule,
+    InputTextareaModule
   ],
   providers: [],
   bootstrap: [AppComponent]

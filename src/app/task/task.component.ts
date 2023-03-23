@@ -12,18 +12,24 @@ export class TaskComponent implements OnInit {
   constructor(private commonService: CommonService) { }
   currentPage = 1;
   totalCount = 0;
-  allData = []
-  tableSize = 0;
+  taskList = []
+  tableSize = 20;
   dataForm = new FormGroup({
-    "name"  : new FormControl('',Validators.required),
-    "job" : new FormControl('',Validators.required)
+    "todo"  : new FormControl('',Validators.required),
+    "completed" : new FormControl(false),
+    "userId" : new FormControl(5)
   });
   showFormDialog = false;
   currentselectedData = null;
   nameError: boolean = false;
   jobError: boolean = false;
+  headerName = 'Add New Task'
+  showLoader: boolean = false;
   ngOnInit(): void {
-    this.getData()
+    this.showLoader = true;
+    setTimeout(() => {
+      this.getData();
+    }, 1000);
   }
 
   openModal(){
@@ -31,11 +37,11 @@ export class TaskComponent implements OnInit {
   }
 
   getData(){
-    this.commonService.apiCall('get',`/users?page=${this.currentPage}`)?.subscribe(
+    this.commonService.apiCall('get',`/todos?limit=${this.tableSize}&skip=${this.currentPage}`)?.subscribe(
       data=>{
-        this.allData = data['data']
+        this.taskList = data['todos']
+        this.showLoader = false;
         this.totalCount = data['total'];
-        this.tableSize = data['per_page']
       },error=>{
         console.log(error);
       }
@@ -54,52 +60,45 @@ export class TaskComponent implements OnInit {
   }
 
   openEditPopUp(data){
-    this.commonService.apiCall('get',`/users/${data?.id}`).subscribe(
+    this.commonService.apiCall('get',`/todos/${data?.id}`).subscribe(
       data=>{
-        console.log(data);
-        this.currentselectedData = data['data'];
+        this.currentselectedData = data;
+        this.headerName = 'Update Task'
         this.dataForm.patchValue({
-          name: this.currentselectedData['first_name'],
-          job: this.currentselectedData['last_name']
+          todo: data['todo'],
         })
         this.showFormDialog=true;
       }
     )
-    // this.dataForm.patchValue({
-    //   name
-    // })
   }
 
   addData(){
+    this.showLoader = true;
     if(this.dataForm.valid){
+      let url;
+      let method;
       if(this.currentselectedData){
-        this.commonService.apiCall('put',`/users/:${this.currentselectedData['id']}`, this.dataForm.value).subscribe(
-          data=>{
-            if(data){
-              console.log(data);
-              this.getData()
-              this.showFormDialog = false;
-            }
-          },error=>{
-            console.log(error);
-
-          }
-        )
+        method = 'put';
+        url = `/todos/${this.currentselectedData['id']}`;
       }else{
-        this.commonService.apiCall('post',`/users`, this.dataForm.value).subscribe(
-          data=>{
-            if(data){
-              console.log(data);
-              this.getData()
-              this.showFormDialog = false;
-            }
-          },error=>{
-            console.log(error);
-
-          }
-        )
+        method = 'post';
+        url = `/todos/add`;
       }
+      this.taskList = [];
+      this.commonService.apiCall(method,url, this.dataForm.value).subscribe(
+        data=>{
+          if(data){
+            console.log(data);
+            this.getData()
+            this.showFormDialog = false;
+          }
+        },error=>{
+          console.log(error);
+          this.showLoader = false;
+        }
+      )
     }else{
+      this.showLoader = false;
       if( !this.dataForm.value['name'] ){
         this.nameError = true;
       }
@@ -119,12 +118,30 @@ export class TaskComponent implements OnInit {
   }
 
   daleteData(id){
-    this.commonService.apiCall('delete',`/users/${id}`).subscribe(
+    this.taskList = [];
+    this.showLoader = true;
+    this.commonService.apiCall('delete',`/todos/${id}`).subscribe(
       data=>{
         this.getData()
       },error=>{
         console.log(error);
+        this.showLoader = false;
+      }
+    )
+  }
 
+  markAsComplete(data){
+    this.showLoader = true;
+    let dataToSend = {
+      completed: true
+    }
+    this.taskList = [];
+    this.commonService.apiCall('put',`/todos/${data['id']}`, dataToSend).subscribe(
+      data=>{
+        this.getData()
+      },error=>{
+        console.log(error);
+        this.showLoader = false;
       }
     )
   }
